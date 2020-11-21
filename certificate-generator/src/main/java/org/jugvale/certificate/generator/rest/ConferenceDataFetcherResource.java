@@ -26,12 +26,12 @@ public class ConferenceDataFetcherResource {
 
     @Inject
     ConferenceDataFetcherService fetcherService;
-    
+
     @GET
     public Map<String, String> fetchers() {
         return fetcherService.fetchers();
     }
-    
+
     @POST
     @Path("{fetcherName}")
     @Transactional
@@ -42,11 +42,11 @@ public class ConferenceDataFetcherResource {
         conferenceData.getRegistrations().forEach(Registration::merge);
         return Response.ok(conferenceData).build();
     }
-    
+
     @DELETE
     @Transactional
     public void clear() {
         Registration.deleteAll();
     }
-    
+
 }

@@ -2,7 +2,6 @@ package org.jugvale.certificate.generator.rest;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,26 +33,27 @@ import org.jugvale.certificate.generator.model.Registration;
 @Path("certificate")
 @Produces(MediaType.APPLICATION_JSON)
 public class CertificateResource {
-    
+
     @Inject
     CertificateKeyGenerator keyGenerator;
-    
+
     @Inject
     Event<NewCertificateEvent> newCertificateEvent;
-    
+
     @Inject
     Event<DeletedCertificateEvent> deletedCertificateEvent;
-    
+
     @GET
-    public List<CertificateSummary> all(@QueryParam("page") @DefaultValue("0") int page, 
+    public List<CertificateSummary> all(@QueryParam("page") @DefaultValue("0") int page,
                                         @QueryParam("pageSize") @DefaultValue("100") int pageSize) {
-        return Certificate.findAll().page(page, pageSize)
-                                    .stream()
-                                    .map(p -> (Certificate) p)
-                                    .map(CertificateSummary::of)
-                                    .collect(Collectors.toList());
+        return Certificate.findAll()
+                          .page(page, pageSize)
+                          .stream()
+                          .map(p -> (Certificate) p)
+                          .map(CertificateSummary::of)
+                          .collect(Collectors.toList());
     }
-    
+
     @GET
     @Path("{id}")
     public CertificateSummary all(@PathParam("id") long id) {
@@ -62,7 +62,7 @@ public class CertificateResource {
                           .map(CertificateSummary::of)
                           .findFirst().orElseThrow(() -> new WebApplicationException(404));
     }
-    
+
     @POST
     @Transactional
     @Path("/model/{modelId}/registration/{registrationId}")
@@ -70,30 +70,32 @@ public class CertificateResource {
                                 @PathParam("registrationId") Long registrationId,
                                 @QueryParam("force") boolean force,
                                 @QueryParam("async") boolean async) {
-        
+
         Registration registration = Registration.findById(registrationId);
         CertificateModel model = CertificateModel.findById(modelId);
+
         ResourceUtils.exceptionIfNull(model, "Certification Model does not exist", Status.PRECONDITION_FAILED);
         ResourceUtils.exceptionIfNull(registration, "Registration does not exist", Status.PRECONDITION_FAILED);
-        Optional<?> certificateOp = Certificate.stream("registration", registration)
-                                               .findAny();
-        
+
+        var certificateOp = Certificate.stream("registration", registration)
+                                       .findAny();
+
         if (!force && certificateOp.isPresent()) {
-            ResourceUtils.exceptionIfPresent(certificateOp, 
-                                             "Certificate for registration already generated", 
+            ResourceUtils.exceptionIfPresent(certificateOp,
+                                             "Certificate for registration already generated",
                                              Status.CONFLICT);
         }
-        
+
         Certificate certificate = certificateOp.stream()
                                                .map(c -> ((Certificate) c))
-                                               .peek(c ->  c.lastModified = new Date(System.currentTimeMillis()))
+                                               .peek(c -> c.lastModified = new Date(System.currentTimeMillis()))
                                                .peek(c -> deletedCertificateEvent.fireAsync(new DeletedCertificateEvent(c)))
                                                .findAny().orElseGet(() -> Certificate.with(registration));
         certificate.certificateModel = model;
         certificate.generationKey = keyGenerator.generateKey();
-        
+
         Certificate.persist(certificate);
-        
+
         if (async) {
             newCertificateEvent.fireAsync(new NewCertificateEvent(certificate));
         } else {
@@ -101,7 +103,7 @@ public class CertificateResource {
         }
         return certificate;
     }
-    
+
     @DELETE
     @Path("{id}")
     @Transactional
@@ -110,11 +112,11 @@ public class CertificateResource {
         deletedCertificateEvent.fireAsync(new DeletedCertificateEvent(certificate))
                                .thenApply(e -> Certificate.delete("id", id));
     }
-    
+
     @GET
     @Path("{id}/content")
     public Response getContent(@PathParam("id") Long id) {
-        Certificate certificate = getCertificate(id);
+        var certificate = getCertificate(id);
         return retrieveContent(certificate);
     }
 
@@ -122,47 +124,45 @@ public class CertificateResource {
     @Path("{id: [0-9]*}/content")
     @Produces("application/pdf")
     public Response getContentBin(@PathParam("id") Long id) {
-        System.out.println("BY ID");
-        Certificate certificate = getCertificate(id);
+        var certificate = getCertificate(id);
         return retrieveBinContent(certificate);
     }
-    
+
     @GET
     @Path("/key/{key}/content")
     @Produces("application/pdf")
     public Response getContentBin(@PathParam("key") String key) {
-        System.out.println("BY KEY");
-        Certificate certificate = getCertificate(key);
+        var certificate = getCertificate(key);
         return retrieveBinContent(certificate);
     }
-    
+
     private Certificate getCertificate(Long id) {
         Certificate certificate = Certificate.findById(id);
         ResourceUtils.exceptionIfNull(certificate, "Certificate not found", Status.NOT_FOUND);
         return certificate;
     }
-    
+
     private Certificate getCertificate(String key) {
         Certificate certificate = Certificate.find("generationKey", key).firstResult();
         ResourceUtils.exceptionIfNull(certificate, "Certificate not found", Status.NOT_FOUND);
         return certificate;
     }
-    
+
     private Response retrieveContent(Certificate certificate) {
         return retrieveContent(certificate, c -> Response.ok().entity(c).build());
     }
-       
+
     private Response retrieveBinContent(Certificate certificate) {
         return retrieveContent(certificate, c -> Response.ok().entity(c.contentBin).build());
     }
-    
+
     private Response retrieveContent(Certificate certificate, Function<CertificateContent, Response> responseMapper) {
         List<CertificateContent> contents = CertificateContent.find("certificate", certificate).list();
         return contents.stream()
                        .limit(1)
                        .map(responseMapper)
                        .findFirst()
-                       .orElseThrow(() -> new WebApplicationException("Content not found for certificate", 
+                       .orElseThrow(() -> new WebApplicationException("Content not found for certificate",
                                                                       Status.NOT_FOUND));
     }
 }

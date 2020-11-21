@@ -17,17 +17,17 @@ import org.jugvale.certificate.generator.model.Registration;
 @Path("certificate-content")
 @Produces(MediaType.APPLICATION_JSON)
 public class CertificateContentResource {
-    
-    @Inject 
+
+    @Inject
     EmailService emailService;
-    
+
     @POST
     @Path("{contentId}/send-email")
     public Response emailByContent(@PathParam("contentId") Long contentId) {
         CertificateContent content = CertificateContent.findById(contentId);
         return verifyContentAndSendEmail(content);
     }
-    
+
     @POST
     @Path("registration/{registrationId}/send-email")
     public Response emailByRegistration(@PathParam("registrationId") Long registrationId) {
@@ -37,7 +37,7 @@ public class CertificateContentResource {
         ResourceUtils.exceptionIfNull(registration, "Certificate not generated for registration", Status.PRECONDITION_FAILED);
         return findContentAndSendEmail(certificate);
     }
-    
+
     @POST
     @Path("certificate/{certificateId}/send-email")
     public Response emailByCertificate(@PathParam("certificateId") Long certificateId) {
@@ -57,5 +57,5 @@ public class CertificateContentResource {
         emailService.send(content);
         return Response.ok().build();
     }
-    
+
 }

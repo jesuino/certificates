@@ -7,7 +7,7 @@ public class CertificateSummary {
     private String conferenceName;
     private String attendeeName;
     private String attendeeEmail;
-    
+
     public CertificateSummary() {}
 
     private CertificateSummary(String key, Long conferenceId, String conferenceName, String attendeeName, String attendeeEmail) {
@@ -17,17 +17,15 @@ public class CertificateSummary {
         this.attendeeName = attendeeName;
         this.attendeeEmail = attendeeEmail;
     }
-    
+
     public static CertificateSummary of(Certificate certificate) {
-        return new CertificateSummary(
-                certificate.generationKey,
-                certificate.registration.conference.externalId,
-                certificate.registration.conference.name,
-                certificate.registration.attendee.name,
-                certificate.registration.attendee.email
-        );
+        return new CertificateSummary(certificate.generationKey,
+                                      certificate.registration.conference.externalId,
+                                      certificate.registration.conference.name,
+                                      certificate.registration.attendee.name,
+                                      certificate.registration.attendee.email);
     }
-    
+
     public String getKey() {
         return key;
     }
@@ -48,6 +46,4 @@ public class CertificateSummary {
         return attendeeEmail;
     }
 
-
-    
 }

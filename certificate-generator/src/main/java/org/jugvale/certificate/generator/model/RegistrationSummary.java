@@ -3,19 +3,16 @@ package org.jugvale.certificate.generator.model;
 /**
  * 
  * Used to summarize registration information
- * 
- * @author wsiqueir
  *
  */
 public class RegistrationSummary {
-    
-    
+
     private Long registrationId;
     private Long attendeeId;
     private Long conferenceExternalId;
     private String conferenceName;
     private String attendeeName;
-    
+
     public static RegistrationSummary from(Registration registration) {
         RegistrationSummary summary = new RegistrationSummary();
         summary.attendeeId = registration.attendee.id;
@@ -45,5 +42,5 @@ public class RegistrationSummary {
     public String getAttendeeName() {
         return attendeeName;
     }
-    
+
 }
