@@ -14,12 +14,10 @@ import org.junit.jupiter.api.Test;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-public class RegistrationResurceTest {
+public class RegistrationResourceTest {
     
     
-    private static final String REGISTRATION_EXTERNAL_CONFERENCE_ID_PARAM_URI = "registration/external_conference_id/{id}";
-    private static final String DATA_FETCHERS_URI = "/conference-data-fetchers";
-    private static final String DATA_FETCHERS_URI_PARAM = DATA_FETCHERS_URI + "/{name}";
+    private static final String REGISTRATION_EXTERNAL_CONFERENCE_ID_PARAM_URI = "/registration/external_conference_id/{id}";
     
     @Test
     public void testRegistrationsForEvent() {
@@ -45,8 +43,8 @@ public class RegistrationResurceTest {
     }
     
     private ConferenceData createConferenceData() {
-        delete(DATA_FETCHERS_URI).then().statusCode(204);
-        return post(DATA_FETCHERS_URI_PARAM, ConfigurationDataFetcher.NAME).then()
+        delete(ConferenceDataFetcherResource.FETCHER_BASE_URI).then().statusCode(204);
+        return post(ConferenceDataFetcherResource.FETCH_DATA_FULL_URI, ConfigurationDataFetcher.NAME).then()
                                                                            .statusCode(200)
                                                                            .extract()
                                                                            .as(MutableConferenceData.class);

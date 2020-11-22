@@ -20,9 +20,13 @@ import org.jugvale.certificate.generator.fetcher.ConferenceDataFetcher;
 import org.jugvale.certificate.generator.fetcher.ConferenceDataFetcherService;
 import org.jugvale.certificate.generator.model.Registration;
 
-@Path("conference-data-fetchers")
+@Path(ConferenceDataFetcherResource.FETCHER_BASE_URI)
 @Produces(MediaType.APPLICATION_JSON)
 public class ConferenceDataFetcherResource {
+
+    public static final String FETCHER_BASE_URI = "conference-data-fetchers";
+    public static final String FETCH_DATA_URI = "{fetcherName}";
+    public static final String FETCH_DATA_FULL_URI = FETCHER_BASE_URI + "/" + FETCH_DATA_URI;
 
     @Inject
     ConferenceDataFetcherService fetcherService;
@@ -33,8 +37,8 @@ public class ConferenceDataFetcherResource {
     }
 
     @POST
-    @Path("{fetcherName}")
     @Transactional
+    @Path(FETCH_DATA_URI)
     public Response fetchData(@PathParam("fetcherName") String fetcherName) {
         Optional<ConferenceDataFetcher> fetcherOp = fetcherService.findFetcher(fetcherName);
         ConferenceDataFetcher fetcher = ResourceUtils.exceptionIfNotPresent(fetcherOp, "", Status.NOT_FOUND);

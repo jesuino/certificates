@@ -24,10 +24,9 @@ import org.w3c.dom.Element;
 @ApplicationScoped
 public class SVGPDFCertificateContentGenerator implements CertificateContentGenerator {
 
-
     private String parser;
     private SAXSVGDocumentFactory factory;
-    
+
     @PostConstruct
     void init() {
         parser = XMLResourceDescriptor.getXMLParserClassName();
@@ -38,21 +37,21 @@ public class SVGPDFCertificateContentGenerator implements CertificateContentGene
     public CertificateContent generate(Certificate certificate) {
         String attendeeNameField = certificate.certificateModel.attendeeNameField;
         String certificateKeyField = certificate.certificateModel.certificateKeyField;
-        
+
         String certificateContent = certificate.certificateModel.content;
 
         Document doc = buildDocument(certificateContent);
         Element attendeNameEl = doc.getElementById(attendeeNameField);
         Element certificateKeyEl = doc.getElementById(certificateKeyField);
-        
+
         attendeNameEl.setTextContent(certificate.registration.attendee.name);
         certificateKeyEl.setTextContent(certificate.generationKey);
-        
+
         CertificateContent storage = new CertificateContent();
         storage.certificate = certificate;
         storage.content = DOMUtilities.getXML(doc);
         storage.contentBin = generatePDF(doc);
-        
+
         return storage;
     }
 
@@ -77,5 +76,4 @@ public class SVGPDFCertificateContentGenerator implements CertificateContentGene
         }
     }
 
-    
 }

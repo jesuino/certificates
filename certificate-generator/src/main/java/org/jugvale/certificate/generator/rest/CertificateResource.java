@@ -30,9 +30,11 @@ import org.jugvale.certificate.generator.model.CertificateModel;
 import org.jugvale.certificate.generator.model.CertificateSummary;
 import org.jugvale.certificate.generator.model.Registration;
 
-@Path("certificate")
+@Path(CertificateResource.CERTIFICATE_BASE_URI)
 @Produces(MediaType.APPLICATION_JSON)
 public class CertificateResource {
+
+    public static final String CERTIFICATE_BASE_URI = "certificate";
 
     @Inject
     CertificateKeyGenerator keyGenerator;

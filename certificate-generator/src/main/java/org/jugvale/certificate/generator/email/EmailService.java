@@ -51,9 +51,10 @@ public class EmailService {
                                 .addAttachment("certificate.pdf",
                                                content.contentBin,
                                                "application/pdf"))
-                      .then(e -> {
+                      .subscribeAsCompletionStage()
+                      .thenApply(e -> {
                           storeEmail(content, subject, body);
-                          return Optional.empty();
+                          return null;
                       });
     }
 

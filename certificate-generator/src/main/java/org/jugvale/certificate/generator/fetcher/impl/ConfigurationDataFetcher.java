@@ -7,6 +7,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
+import io.quarkus.arc.AlternativePriority;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jugvale.certificate.generator.fetcher.ConferenceData;
 import org.jugvale.certificate.generator.fetcher.ConferenceDataFetcher;
@@ -22,6 +23,7 @@ import org.jugvale.certificate.generator.model.Registration;
  */
 @Alternative
 @ApplicationScoped
+@AlternativePriority(1)
 public class ConfigurationDataFetcher implements ConferenceDataFetcher {
     
 

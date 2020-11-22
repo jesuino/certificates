@@ -11,12 +11,12 @@ import javax.inject.Inject;
 
 @ApplicationScoped
 public class ConferenceDataFetcherService {
-    
+
     @Inject
     Instance<ConferenceDataFetcher> dataFetchers;
-    
+
     public Map<String, String> fetchers() {
-        return dataFetchers.stream().collect(toMap(ConferenceDataFetcher::name, 
+        return dataFetchers.stream().collect(toMap(ConferenceDataFetcher::name,
                                                    ConferenceDataFetcher::description));
     }
 
@@ -25,5 +25,5 @@ public class ConferenceDataFetcherService {
                            .filter(f -> f.name().equals(fetcherName))
                            .findFirst();
     }
-    
+
 }

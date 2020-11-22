@@ -35,10 +35,10 @@ public class NewCertificateListener {
 
     private void generateCertificateContent(NewCertificateEvent newCertificateEvent) {
         Certificate certificate = newCertificateEvent.getCertificate();
-        CertificateContent certificateStorage = contentGenerator.generate(certificate);
+        CertificateContent certificateContent = contentGenerator.generate(certificate);
         storageConsumers.stream()
                         .filter(this::filterConsumer)
-                        .forEach(c -> c.newCertificateContent(certificateStorage));
+                        .forEach(c -> c.newCertificateContent(certificateContent));
     }
 
     public void removeCertificateContentSync(@Observes DeletedCertificateEvent deletedCertificateEvent) {
